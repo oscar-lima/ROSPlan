@@ -655,8 +655,8 @@ int main(int argc, char **argv) {
 	KCL_rosplan::KnowledgeBasePtr kb = KCL_rosplan::KnowledgeBaseFactory::createKB(kb_type, n);
 
 	// parse domain
-    kb->parseDomain(domainPath, problemPath);
-    kb->use_unknowns = useUnknowns;
+        kb->parseDomain(domainPath, problemPath);
+        kb->use_unknowns = useUnknowns;
 
 	ROS_INFO("KCL: (%s) Ready to receive", ros::this_node::getName().c_str());
 	kb->runKnowledgeBase();
