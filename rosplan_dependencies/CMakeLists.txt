@@ -50,7 +50,7 @@ if (LBITS EQUAL 64)
 else()
     SET (RDDL_CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 endif(LBITS EQUAL 64)
-SET (RDDL_CMAKE_CXX_FLAGS "${RDDL_CMAKE_CXX_FLAGS} -g -Wall -W -Wno-sign-compare -Wno-deprecated -ansi -pedantic -Werror -std=c++11")
+SET (RDDL_CMAKE_CXX_FLAGS "${RDDL_CMAKE_CXX_FLAGS} -g -Wall -W -Wno-sign-compare -Wno-deprecated -ansi -pedantic -Werror -std=c++11 -O3 -DNDEBUG -fomit-frame-pointer")
 
 # Lexer and parser
 find_package(BISON 3.0.4 REQUIRED)
@@ -78,7 +78,7 @@ include_directories("rddl_parser")
 
 add_library(rddl_parser SHARED  ${BISON_RDDL_PARSER_OUTPUTS} ${FLEX_RDDL_SCANNER_OUTPUTS} ${RDDL_PARSER_SOURCES})
 add_dependencies(rddl_parser ${catkin_EXPORTED_TARGETS})
-SET_TARGET_PROPERTIES(rddl_parser PROPERTIES COMPILE_FLAGS "${RDDL_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
+SET_TARGET_PROPERTIES(rddl_parser PROPERTIES COMPILE_FLAGS "${RDDL_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}" LINK_FLAGS "-g -O3")
 
 #############
 ## Install ##
@@ -274,7 +274,7 @@ install(TARGETS ippc_server
         )
 
 ## Mark cpp header files for installation
-install(DIRECTORY ippc_server/include/
+install(DIRECTORY ippc_server/include/ ippc_server/cpp-base64/
         DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
         FILES_MATCHING PATTERN "*.h"
         PATTERN ".svn" EXCLUDE)

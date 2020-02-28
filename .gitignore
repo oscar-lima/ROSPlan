@@ -35,9 +35,6 @@
 #gedit
 *~
 
-# MongoDB database files
-/rosplan_knowledge_base/common/mongoDB
-
 # temporary plan files
 rosplan_planning_system/common/plan*
 

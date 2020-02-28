@@ -24,13 +24,13 @@ namespace KCL_rosplan {
 
 	class RPActionInterface
 	{
-
-	private:
-
+	
 	protected:
+		
+		std::map<std::string, rosplan_knowledge_msgs::DomainFormula> predicates;
+		std::map<std::string, rosplan_knowledge_msgs::DomainFormula> sensed_predicates;
 
 		/* PDDL info and publisher */
-		std::map<std::string, rosplan_knowledge_msgs::DomainFormula> predicates;
 		rosplan_knowledge_msgs::DomainFormula params;
 		rosplan_knowledge_msgs::DomainOperator op;
 		ros::Publisher pddl_action_parameters_pub;
@@ -43,6 +43,7 @@ namespace KCL_rosplan {
 
 		/* action status */
 		bool action_success;
+		bool action_cancelled;
 
 	public:
 

@@ -20,6 +20,7 @@
 #include "rosplan_knowledge_msgs/GetDomainOperatorDetailsService.h"
 #include "rosplan_knowledge_msgs/GetDomainPredicateDetailsService.h"
 #include "rosplan_knowledge_msgs/DomainFormula.h"
+#include "rosplan_knowledge_msgs/StatusUpdate.h"
 
 #include "rosplan_knowledge_msgs/GetAttributeService.h"
 #include "rosplan_knowledge_msgs/GetInstanceService.h"
@@ -61,6 +62,8 @@ namespace KCL_rosplan {
         ros::ServiceServer stateServer6; // getMetric
 
 	protected:
+    
+        ros::Publisher status_pub;
 
 		/* adding items to the knowledge base */
 		void addKnowledge(rosplan_knowledge_msgs::KnowledgeItem &msg);
@@ -73,6 +76,9 @@ namespace KCL_rosplan {
 
         void removeMissionGoal(rosplan_knowledge_msgs::KnowledgeItem &msg);
 		void removeMissionMetric(rosplan_knowledge_msgs::KnowledgeItem &msg);
+
+		/* PDDL model (persistent state) */
+		std::map<std::string, std::vector<std::string> > domain_constants;
 
 		/* PDDL model (current state) */
 		std::map<std::string, std::vector<std::string> > model_constants;
@@ -92,6 +98,8 @@ namespace KCL_rosplan {
 		std::map<std::string, bool> sensed_predicates;
 
         ros::NodeHandle _nh;
+
+        double _kb_rate;
     public:
 
 		KnowledgeBase(ros::NodeHandle& n);
@@ -104,6 +112,7 @@ namespace KCL_rosplan {
 
         /* add the initial state to the knowledge base */
         virtual void addInitialState() =0;
+    	virtual void addConstants() =0;
 
 		/* service methods for querying the model */
 		bool queryKnowledge(rosplan_knowledge_msgs::KnowledgeQueryService::Request  &req, rosplan_knowledge_msgs::KnowledgeQueryService::Response &res);
@@ -117,7 +126,8 @@ namespace KCL_rosplan {
 		bool getTimedKnowledge(rosplan_knowledge_msgs::GetAttributeService::Request  &req, rosplan_knowledge_msgs::GetAttributeService::Response &res);
 
 		/* service methods for adding and removing items to and from the current state */
-		bool updateKnowledgeArray(rosplan_knowledge_msgs::KnowledgeUpdateServiceArray::Request &req, rosplan_knowledge_msgs::KnowledgeUpdateServiceArray::Response &res);
+        bool updateKnowledgeArray(ros::ServiceEvent<rosplan_knowledge_msgs::KnowledgeUpdateServiceArray::Request, rosplan_knowledge_msgs::KnowledgeUpdateServiceArray::Response> &event);
+		//bool updateKnowledgeArray(rosplan_knowledge_msgs::KnowledgeUpdateServiceArray::Request &req, rosplan_knowledge_msgs::KnowledgeUpdateServiceArray::Response &res);
 		bool updateKnowledge(rosplan_knowledge_msgs::KnowledgeUpdateService::Request  &req, rosplan_knowledge_msgs::KnowledgeUpdateService::Response &res);
 		bool clearKnowledge(std_srvs::Empty::Request  &req, std_srvs::Empty::Response &res);
 
@@ -136,6 +146,9 @@ namespace KCL_rosplan {
 
 		/* service methods for sensed predicates */
 		bool setSensedPredicate(rosplan_knowledge_msgs::SetNamedBool::Request  &req, rosplan_knowledge_msgs::SetNamedBool::Response &res);
+
+        /* publish status */
+        void publishStatusUpdate(ros::Time &time, std::string &caller_id);
 
 		/* main loop */
 		void runKnowledgeBase();

@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rosplan_planning_system)
 
+## Compile as C++11, supported in ROS Kinetic and newer
+add_compile_options(-std=c++11)
+
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -12,12 +15,9 @@ find_package(catkin REQUIRED COMPONENTS
   rosplan_dispatch_msgs
   rosplan_knowledge_msgs
   rosplan_dependencies
+  roslib
   rostest
-  rosunit
 )
-
-## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
 
 ###################################
 ## catkin specific configuration ##
@@ -26,8 +26,9 @@ add_compile_options(-std=c++11)
 ## Declare things to be passed to dependent projects
 catkin_package(
   INCLUDE_DIRS include ${catkin_INCLUDE_DIRS}
-  LIBRARIES rosplan_action_interface action_simulator
-  CATKIN_DEPENDS roscpp rospy actionlib std_msgs std_srvs diagnostic_msgs rosplan_dispatch_msgs rosplan_knowledge_msgs
+  LIBRARIES rosplan_action_interface
+  CATKIN_DEPENDS roscpp rospy actionlib std_msgs std_srvs diagnostic_msgs
+                 rosplan_dispatch_msgs rosplan_knowledge_msgs roslib rostest
   DEPENDS
 )
 
@@ -42,11 +43,6 @@ find_package(FLEX REQUIRED)
 
 # Disable deprecated declarations warning (about std::auto_ptr)
 add_definitions(-Wno-deprecated-declarations)
-
-## visualisation
-find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 
 ## Declare cpp executables
 add_executable(problemInterface src/ProblemGeneration/ProblemInterface.cpp src/ProblemGeneration/PDDLProblemGenerator.cpp
@@ -118,8 +114,6 @@ target_link_libraries(simulatedAction ${catkin_LIBRARIES})
 
 ## Declare libraries
 # rosplan_planning_system does not dispatch VALfiles as a library anymore.
-#add_library(${PROJECT_NAME} ${PLANNING_SOURCES} )
-#add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 add_library(rosplan_action_interface src/ActionInterface/RPActionInterface.cpp)
 add_dependencies(rosplan_action_interface ${catkin_EXPORTED_TARGETS})
 
@@ -166,10 +160,43 @@ install(DIRECTORY include/rosplan_action_interface
 # within a launch file similar to "$(find ...)".
 # The chosen path allows to use the same roslaunch parameter,
 # when run from the workspace or when installed.
-#file(GLOB COMMON_BINS common/bin/*)
-#install(PROGRAMS ${COMMON_BINS}
-#  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/bin
+# file(GLOB COMMON_BINS common/bin/*)
+# install(PROGRAMS ${COMMON_BINS}
+# DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/bin
 #)
 install(DIRECTORY common/bin
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/bin/
-        FILE_PERMISSIONS OWNER_EXECUTE)
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/common/bin/
+  FILE_PERMISSIONS OWNER_EXECUTE
+)
+
+# install pddl files in install space
+install(DIRECTORY test/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/test
+)
+
+# install launch files in install space
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
+#############
+##  Tests  ##
+#############
+
+# to build the test do: "catkin build --no-deps rosplan_planning_system --make-args run_tests"
+# to run the test do e.g.: "rostest rosplan_planning_system foo.test --text"
+# where "--text" is optional, if you want to see the console output of your test
+if (CATKIN_ENABLE_TESTING)
+    # Planner Interface
+    add_rostest_gtest(PlannerInterfaceTests test/launch/planner_interface.test test/src/PlannerInterfaceTests.cpp)
+    target_link_libraries(PlannerInterfaceTests ${catkin_LIBRARIES})
+    # Problem Interface
+    add_rostest_gtest(ProblemInterfaceTests test/launch/problem_interface.test test/src/ProblemInterfaceTests.cpp)
+    target_link_libraries(ProblemInterfaceTests ${catkin_LIBRARIES})
+    # Parsing Interface
+    add_rostest_gtest(ParsingInterfaceTests test/launch/parsing_interface.test test/src/ParsingInterfaceTests.cpp)
+    target_link_libraries(ParsingInterfaceTests ${catkin_LIBRARIES})
+    # Plan Dispatch Interface
+    add_rostest_gtest(PlanDispatchTests test/launch/plan_dispatch.test test/src/PlanDispatchTests.cpp)
+    target_link_libraries(PlanDispatchTests ${catkin_LIBRARIES})
+endif()
