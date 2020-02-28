@@ -327,7 +327,7 @@ namespace KCL_rosplan {
 	/* Produce DOT graph */
 	/*-------------------*/
 
-	bool AdaptablePlanDispatcher::printPlan() {
+	void AdaptablePlanDispatcher::printPlan() {
 
 		// output stream
 		std::stringstream dest;

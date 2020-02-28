@@ -55,7 +55,7 @@ namespace KCL_rosplan
 		bool finished_execution;
 
 		/* plan graph publisher */
-		bool printPlan();
+		void printPlan();
 		ros::Publisher plan_graph_publisher;
 
         /* alternative plan generator */
