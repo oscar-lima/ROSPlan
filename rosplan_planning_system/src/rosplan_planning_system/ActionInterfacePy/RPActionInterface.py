@@ -184,7 +184,7 @@ class RPActionInterface(object):
         rospy.wait_for_service(ss, 20)
         predClient = rospy.ServiceProxy(ss, GetDomainPredicateDetailsService)
         for predicateName in predicateNames:
-            if predicateName in (self.predicates, '=', '>', '<', '>=', '<='):
+            if predicateName in self.predicates + ['=', '>', '<', '>=', '<=']:
                 continue
             try:
                 resp = predClient(predicateName)
