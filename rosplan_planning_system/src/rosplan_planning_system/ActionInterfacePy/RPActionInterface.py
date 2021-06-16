@@ -72,7 +72,7 @@ class RPActionInterface(object):
                 rospy.loginfo(
                     'KCL: ({}) aborting action dispatch'
                     ' malformed parameters, missing {}'.format(
-                        self.params.name, self.params.typed_parameters[j].key))
+                        self.params.name, typed_param.key))
                 return None
 
         # send feedback (enabled)
